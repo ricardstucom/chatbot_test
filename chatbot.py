@@ -1,5 +1,29 @@
-import os #Variables de entorno
-from openai import OpenAI #CLiente OpenAi
+import os #caixa d’eines
+import json
+from typing import Any, List, Dict #Per dir quin tipus s'espera
+from openai import OpenAI #Cliente OpenAi
+
+# ---------- Config ----------
+MODEL = "gpt-4o-mini"
+MAX_TURNS = 20  # Nombre de torns (usuari+assistent) que mantindrem al context
+HISTORY_PATH = "historial.json"
+
+# ---------- Helpers JSON ----------
+def load_json(path: str, default: Any) -> Any:
+    try:
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"(Avís) No s'ha pogut llegir {path}: {e}")
+    return default
+
+def save_json(path: str, data: Any) -> None:
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"(Avís) No s'ha pogut desar {path}: {e}")
 
 def ensure_api_key() -> str: #(-> str) : informa que retorna un string pero no modicia res. Només és per programadors o i eines
     api_key = os.environ.get("OPENAI_API_KEY") #Busca en el entorno la variable 'OPENAI_API_KEY'
@@ -25,32 +49,67 @@ def truncate_messages(msgs, max_turns=MAX_TURNS): #msgs: és tot l'historial  ma
     tail = rest[-2*max_turns:] #Agafa els darrers missatges per no haver d'estar enviant l'historial tota l'estona.
     return [system] + tail if system else tail
 
+def main():
+    api_key = ensure_api_key()
+    client = OpenAI(api_key=api_key)
+  # 1) Carreguem historial si existeix; sinó, el creem amb system
+    default_history = [
+        {
+            "role": "system",
+            "content": "Ets un assistent amable de la UOC. Respon en català, clar i breu."
+        }
+    ]
+    messages: List[Dict[str, str]] = load_json(HISTORY_PATH, default=default_history)
+    print("Escriu 'sortir' per acabar (o Ctrl+C).")
+    print("Ordres: 'reset' per iniciar conversa nova, 'guarda' per desar manualment.")
 
-client = OpenAI(api_key=api_key) #Creas el cliente
 
-print("Escriu 'sortir' per acabar.") #Informativo para que el usuario sepa cerrar el chat
+    try:
+        while True:
+            missatge = input("Tu: ").strip()
+            if missatge.lower() == "sortir":
+                 # Desem l'historial actual abans d'acabar
+                save_json(HISTORY_PATH, messages)
+                print("Chatbot: Adéu!")
+                break
 
-messages = [
-    {"role": "system", "content": "Ets un assistent amable de la UOC. Respon en català, clar i breu."} #Marco el comportamiento del modelo / System: personalidad del bot
-]
+             # 3) Ordres locals útils
+            if missatge.lower() == "guarda":
+                save_json(HISTORY_PATH, messages)
+                print("Chatbot: Conversa desada.")
+                continue
 
-while True: #Bucle conversación
-    missatge = input("Tu: ").strip() #Leo y limpio espacios
+            if missatge.lower() in ("reset", "nova conversa", "reinicia"):
+                messages = default_history.copy() #Guardem pero reiniciat
+                save_json(HISTORY_PATH, messages)
+                print("Chatbot: Conversa reiniciada i desada.")
+                continue
 
-    if missatge.lower() == "sortir": #Comando salida
-        print("Chatbot: Adéu!")
-        break
+            messages.append({"role": "user", "content": missatge})
+            messages = truncate_messages(messages, MAX_TURNS)
 
-    messages.append({"role": "user", "content": missatge}) #Guardo mensaje en el historial para recordar contexto
+            try:
+                resp = client.chat.completions.create(
+                    model=MODEL,
+                    messages=messages,
+                    temperature=0.4
+                )
+                resposta = resp.choices[0].message.content.strip()
+            except Exception as e:
+                resposta = ("Sembla que hi ha un problema amb el servei d'IA. "
+                            "Torna-ho a provar d'aquí una estona.")
 
-    resp = client.chat.completions.create(
-        model="gpt-4o-mini",      # Llamada al modelo
-        messages=messages,         # Envio todo el historial
-        temperature=0.4 #Variabilidad de las respuestas
-    )
 
-    #El cliente retorna resp que és un objeto con una lista de choices (en este caso 1)
-    resposta = resp.choices[0].message.content.strip() #Extraigo el contenido y limpio
-    print("Chatbot:", resposta)
+            print("Chatbot:", resposta)
+            messages.append({"role": "assistant", "content": resposta})
 
-    messages.append({"role": "assistant", "content": resposta}) #Guardo la respuesta en el historial
+            # 4) Desem l'historial després de cada interacció
+            save_json(HISTORY_PATH, messages)
+
+    except KeyboardInterrupt:
+            save_json(HISTORY_PATH, messages)
+            print("\nChatbot: Adéu! (interromput per usuari)")
+
+if __name__ == "__main__":
+    main()
+

@@ -2,5 +2,93 @@
   {
     "role": "system",
     "content": "Ets un assistent amable de la UOC. Respon en català, clar i breu."
+  },
+  {
+    "role": "user",
+    "content": "Hola"
+  },
+  {
+    "role": "assistant",
+    "content": "Hola! Com et puc ajudar avui?"
+  },
+  {
+    "role": "user",
+    "content": "saps com em dic?"
+  },
+  {
+    "role": "assistant",
+    "content": "No, no ho sé. Com et dius?"
+  },
+  {
+    "role": "user",
+    "content": "busca"
+  },
+  {
+    "role": "assistant",
+    "content": "No puc buscar informació personal. Si vols, em pots dir el teu nom o qualsevol altra cosa en què pugui ajudar-te!"
+  },
+  {
+    "role": "user",
+    "content": "ricaRD"
+  },
+  {
+    "role": "assistant",
+    "content": "Hola, Ricard! Com et puc ajudar avui?"
+  },
+  {
+    "role": "user",
+    "content": ""
+  },
+  {
+    "role": "assistant",
+    "content": "Si tens alguna pregunta o necessites ajuda amb alguna cosa, no dubtis a dir-m'ho!"
+  },
+  {
+    "role": "user",
+    "content": "RECORDARAS EL MEU NOM?"
+  },
+  {
+    "role": "assistant",
+    "content": "No puc recordar informació personal d'una conversa a l'altra. Cada vegada que parlem, no sé qui ets. Però sempre estaré aquí per ajudar-te!"
+  },
+  {
+    "role": "user",
+    "content": "hola"
+  },
+  {
+    "role": "assistant",
+    "content": "Hola de nou! Com et puc ajudar avui?"
+  },
+  {
+    "role": "user",
+    "content": "saps com em dic?"
+  },
+  {
+    "role": "assistant",
+    "content": "Sí, em vas dir que et dius Ricard. Com et puc ajudar?"
+  },
+  {
+    "role": "user",
+    "content": "& C:/Users/offender/AppData/Local/Programs/Python/Python313/python.exe d:/chatbot_uoc/main.py"
+  },
+  {
+    "role": "assistant",
+    "content": "Sembla que estàs intentant executar un script de Python. Si necessites ajuda amb això, puc oferir-te consells sobre com executar scripts o solucionar errors. Quina és la teva pregunta específica?"
+  },
+  {
+    "role": "user",
+    "content": "hola"
+  },
+  {
+    "role": "assistant",
+    "content": "Hola! Com et puc ajudar avui?"
+  },
+  {
+    "role": "user",
+    "content": "sams com em dic?"
+  },
+  {
+    "role": "assistant",
+    "content": "Sí, et dius Ricard. Com et puc ajudar?"
   }
 ]

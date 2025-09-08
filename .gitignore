@@ -1,10 +1,7 @@
-# Python
 __pycache__/
 *.pyc
-
-# Entorns virtuals
 venv/
 .env
-
-# VS Code
 .vscode/
+historial.json
+chatboy.py
